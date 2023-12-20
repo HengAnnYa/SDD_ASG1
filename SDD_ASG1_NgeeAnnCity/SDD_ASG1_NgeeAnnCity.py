@@ -20,6 +20,8 @@ board = [ [None, None, None, None, None, None, None,None, None, None, None, None
           [None, None, None, None, None, None, None,None, None, None, None, None, None, None,None, None, None, None, None, None],
           [None, None, None, None, None, None, None,None, None, None, None, None, None, None,None, None, None, None, None, None]]
 
+
+
 # function to display main menu
 def display_main_menu():
     print()
@@ -32,9 +34,10 @@ def display_main_menu():
     print("5: Rules")
     print("---------------------------------------")
 
-
 # function to display game board
 def display_game_board():
+    print("Coins: " + str(coins) + "     Score: " + str(score))
+    print("")
     letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"]
     print("     1     2     3     4     5     6     7     8     9     10    11    12    13    14    15    16    17    18    19    20")
     
@@ -53,7 +56,7 @@ def display_game_board():
         print(letters[row], first_line)
         print(" ", second_line)
         print(connectline)
-    
+
 # option 5 function: 
 def display_game_rules():
     print("------------------- Game Rules -------------------")
@@ -88,12 +91,16 @@ def display_game_rules():
     
 # MAIN CODE: START NEW GAME SESSION
 
+# variables 
 option = 0
+coins = 16
+score = 0
 
 while option != 1 and option != 2:
     display_main_menu()
-    option = int(input('Your choice?'))
-
+    option = int(input('Your choice? '))
+    print("---------------------------------------")
+    print("")
     if option == 1:
         # method for initialise new game
         display_game_board()
