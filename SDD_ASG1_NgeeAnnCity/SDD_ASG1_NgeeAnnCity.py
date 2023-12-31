@@ -164,8 +164,19 @@ while option != 1 and option != 2:
             game_vars['advance_time'] = False
             if game_vars["buildings"] == 400 or game_vars["coins"] == 0:
                 print("Game Over! Select an Option to Continue...")
+                print("1: Exit to Menu       2: View Summary")
+                print("3: View Highscores    4: Quit Game")
+                end_choice = int(input("Your Choice: "))
                 # add function to display options to view summary and highscore etc
-                ended = True
+                if end_choice == 1:
+                    ended = True
+                    print("Returning to Main Menu...")
+                    option == 0
+                elif end_choice == 4:
+                    ended = True
+                    print("See you next time! Goodbye!")
+                    break
+                    
             
             if ended == True:
                 break
