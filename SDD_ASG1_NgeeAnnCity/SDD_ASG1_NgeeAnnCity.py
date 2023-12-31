@@ -30,7 +30,7 @@ commercial = {
     }
 
 park = {
-    "shortform" : 0,
+    "shortform" : "0",
     "name" : "Park",
     "price" : 1
     }
@@ -141,8 +141,46 @@ def initialize_game():
 def show_game_menu(game_vars):
     print('Turn: {}     Score: {}'.format(game_vars["turn"]+1, game_vars["score"]))
     print('Coins = {}     Buildings = {}/400'.format(game_vars["coins"],game_vars['score']))
+    print("")
     print("1: Place a Building   2: Quit to menu")
     print("3: Save Game          4: View Rules")
+    
+# function to buy building
+buildings = ['Residential', 'Industry', 'Commercial', 'Park', 'Road']
+building1 = str(random.choice(buildings))
+building2 = str(random.choice(buildings))
+
+if building1 == building2:  # code to (hopefully) prevent duplicate options 
+    building2 = str(random.choice(buildings)) 
+
+if building1 == "Residential":
+    opt1 = residential["shortform"]
+elif building1 == "Industry":
+    opt1 = industry["shortform"]
+elif building1 == "Commercial":
+    opt1 = commercial["shortform"]
+elif building1 == "Park":
+    opt1 = park["shortform"]
+elif building1 == "Road":
+    opt1 = road["shortform"]
+        
+if building2 == "Residential":
+    opt2 = residential["shortform"]
+elif building2 == "Industry":
+    opt2 = industry["shortform"]
+elif building2 == "Commercial":
+    opt2 = commercial["shortform"]
+elif building2 == "Park":
+    opt2 = park["shortform"]
+elif building2 == "Road":
+    opt2 = road["shortform"]
+
+def buy_building(board, game_vars):
+    print("")
+    print("Choose your building type: ({}) {} or ({}) {}. Cost: 1 coin".format(opt1, building1, opt2, building2))
+    print("The unselected building will be discarded.")
+    print("")
+    building_choice = int(input("Your Choice? "))
 
 
 # MAIN CODE: START NEW GAME SESSION
@@ -181,20 +219,19 @@ while option != 1 and option != 2:
             if ended == True:
                 break
 
-            choice = int(input("Your choice?"))
+            choice = int(input("Your choice? "))
             if choice == 1:  # Place building
                 # function to buy and place building 
                 # time passes
-                #buy_building(board, game_vars)
+                buy_building(board, game_vars)
                 #if place_building(board, position, name) == True:
                     #game_vars['advance_time'] = True
-                print("Placeholder to prevent error")
                 
             elif choice == 2: # Quit game
                 selection = 0
                 print("Are you sure you want to quit? Your game will not be saved.")
                 print("1: Yes 2: No")
-                selection = int(input('Your choice?'))
+                selection = int(input('Your choice? '))
                 if selection == 1:
                     ended = True
                     option = 0
@@ -222,7 +259,7 @@ while option != 1 and option != 2:
         selection = 0
         print("Are you sure you want to exit?")
         print("1: Yes 2: No")
-        selection = int(input('Your choice?'))
+        selection = int(input('Your choice? '))
         if selection == 2:
             print("Returning to main menu...")
         elif selection == 1:
