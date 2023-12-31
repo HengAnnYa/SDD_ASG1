@@ -1,4 +1,46 @@
 
+import random
+
+# game variables
+
+game_vars = {
+    "turn" : 0,             # Current turn
+    "coins" : 16,           # Coins for purchasing buildings
+    "buildings" : 0,        # No of buildings placed
+    "score": 0,             # Amount of points earnt by player
+    "advance_time" : False
+    }
+
+residential = {
+    "shortform" : "R",      
+    "name" : "Residential",
+    "price" : 1            # Amt of coins needed to build the building
+    }
+
+industry = {
+    "shortform" : "I",
+    "name" : "Industry",
+    "price" : 1
+    }
+
+commercial = {
+    "shortform" : "C",
+    "name" : "Commercial",
+    "price" : 1
+    }
+
+park = {
+    "shortform" : 0,
+    "name" : "Park",
+    "price" : 1
+    }
+
+road = {
+    "shortform" : "*",
+    "name" : "Road",
+    "price" : 1
+    }
+
 board = [ [None, None, None, None, None, None, None,None, None, None, None, None, None, None,None, None, None, None, None, None],
           [None, None, None, None, None, None, None,None, None, None, None, None, None, None,None, None, None, None, None, None],
           [None, None, None, None, None, None, None,None, None, None, None, None, None, None,None, None, None, None, None, None],
@@ -36,8 +78,6 @@ def display_main_menu():
 
 # function to display game board
 def display_game_board():
-    print("Coins: " + str(coins) + "     Score: " + str(score))
-    print("")
     letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"]
     print("     1     2     3     4     5     6     7     8     9     10    11    12    13    14    15    16    17    18    19    20")
     
@@ -89,12 +129,25 @@ def display_game_rules():
     print("--------------------------------------------------")
     print()
     
-# MAIN CODE: START NEW GAME SESSION
 
-# variables 
+# initialize game 
+def initialize_game():
+    game_vars["turn"] = 0
+    game_vars["buildings"] = 0
+    game_vars["coins"] = 16
+    game_vars["score"] = 0
+    
+# show in game menu while playing game
+def show_game_menu(game_vars):
+    print('Turn: {}     Score: {}'.format(game_vars["turn"]+1, game_vars["score"]))
+    print('Coins = {}     Buildings = {}/400'.format(game_vars["coins"],game_vars['score']))
+    print("1: Place a Building   2: Quit to menu")
+    print("3: Save Game          4: View Rules")
+
+
+# MAIN CODE: START NEW GAME SESSION
+ 
 option = 0
-coins = 16
-score = 0
 
 while option != 1 and option != 2:
     display_main_menu()
@@ -103,7 +156,48 @@ while option != 1 and option != 2:
     print("")
     if option == 1:
         # method for initialise new game
-        display_game_board()
+        ended = False
+        initialize_game()
+        while not ended:
+            display_game_board()        
+            show_game_menu(game_vars)
+            game_vars['advance_time'] = False
+            if game_vars["buildings"] == 400 or game_vars["coins"] == 0:
+                print("Game Over! Select an Option to Continue...")
+                # add function to display options to view summary and highscore etc
+                ended = True
+            
+            if ended == True:
+                break
+
+            choice = int(input("Your choice?"))
+            if choice == 1:  # Place building
+                # function to buy and place building 
+                # time passes
+                #buy_building(board, game_vars)
+                #if place_building(board, position, name) == True:
+                    #game_vars['advance_time'] = True
+                print("Placeholder to prevent error")
+                
+            elif choice == 2: # Quit game
+                selection = 0
+                print("Are you sure you want to quit? Your game will not be saved.")
+                print("1: Yes 2: No")
+                selection = int(input('Your choice?'))
+                if selection == 1:
+                    ended = True
+                    option = 0
+                elif selection == 2:
+                    continue
+                
+            elif choice == 3: # function to save game files
+                print("Placeholder")
+                
+            elif choice == 4: # Display game rules
+                display_game_rules()
+                print("Returning to game...")
+                continue
+
     elif option == 2:
     # method for load save game
         print("This is a placeholder so theres no error")
@@ -123,3 +217,6 @@ while option != 1 and option != 2:
         elif selection == 1:
             print("See you next time! Goodbye!")
             break
+
+
+
