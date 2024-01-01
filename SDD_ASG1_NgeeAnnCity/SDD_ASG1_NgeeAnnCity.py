@@ -178,7 +178,7 @@ def place_building(board, position, building):
                 board[row][column] = ['Park', "0"]
         elif building == "Road":
                 board[row][column] = ['Road', "*"]
-
+        end_turn()
     return True
     
 # code to randomly select 2 building types for player to choose
@@ -316,7 +316,15 @@ def buy_building(board, game_vars):
         print("Invalid action.")
         dont_end_turn = True
     
-               
+# end_turn()
+# when turn ends -after buying and placing unit
+
+def end_turn():
+
+    if dont_end_turn == True: #for don't buy and any other invalid options (turn will not end)
+        show_game_menu(game_vars)
+    else:
+        game_vars["turn"] += 1              
 
 # MAIN CODE: START NEW GAME SESSION
  
