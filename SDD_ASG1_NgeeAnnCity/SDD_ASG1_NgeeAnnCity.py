@@ -101,7 +101,7 @@ def display_game_board():
                 second_line += "     |"
             else:
                 first_line += "{:^5}|".format(space[0])
-                second_line += "     |"
+                second_line += "{:^5}|".format(space[1])
                 
         print(letters[row], first_line)
         print(" ", second_line)
@@ -169,15 +169,15 @@ def place_building(board, position, building):
     
     if building in buildings:  
         if building == "Residential":
-                board[row][column] = ['Resi']
+                board[row][column] = ['Resi', "R"]
         elif building == "Industry":
-                board[row][column] = ['Ind']
+                board[row][column] = ['Ind', "I"]
         elif building == "Commercial":
-                board[row][column] = ['Comm']
+                board[row][column] = ['Comm', "C"]
         elif building == "Park":
-                board[row][column] = ['Park']
+                board[row][column] = ['Park', "0"]
         elif building == "Road":
-                board[row][column] = ['Road']
+                board[row][column] = ['Road', "*"]
 
     return True
     
@@ -255,13 +255,13 @@ def buy_building(board, game_vars):
                 game_vars["coins"] = int(game_vars["coins"]) - 1
                 dont_end_turn = False
         elif building_choice == road["shortform"] and game_vars["coins"] >= 1:
-                building = "Road"
-                if (place_building(board, position, building) == False): #check if there square is unoccupied
-                    dont_end_turn = True
-                else:
+            building = "Road"
+            if (place_building(board, position, building) == False): #check if there square is unoccupied
+                dont_end_turn = True
+            else:
                 #since place_unit function already called, no need to call again
-                    game_vars["coins"] = int(game_vars["coins"]) - 1
-                    dont_end_turn = False
+                game_vars["coins"] = int(game_vars["coins"]) - 1
+                dont_end_turn = False
         else:
             print("You do not have enough coins to buy this building. Game over")
             
@@ -400,3 +400,6 @@ while option != 1 and option != 2:
         elif selection == 1:
             print("See you next time! Goodbye!")
             break
+
+
+
