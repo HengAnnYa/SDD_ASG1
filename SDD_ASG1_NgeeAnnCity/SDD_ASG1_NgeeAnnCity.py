@@ -41,6 +41,9 @@ road = {
     "price" : 1
     }
 
+position = 0
+building = 0
+
 board = [ [None, None, None, None, None, None, None,None, None, None, None, None, None, None,None, None, None, None, None, None],
           [None, None, None, None, None, None, None,None, None, None, None, None, None, None,None, None, None, None, None, None],
           [None, None, None, None, None, None, None,None, None, None, None, None, None, None,None, None, None, None, None, None],
@@ -97,7 +100,7 @@ def display_game_board():
         print(" ", second_line)
         print(connectline)
 
-# option 5 function: 
+# option 5 function to display rules of game: 
 def display_game_rules():
     print("------------------- Game Rules -------------------")
     print()
@@ -145,7 +148,51 @@ def show_game_menu(game_vars):
     print("1: Place a Building   2: Quit to menu")
     print("3: Save Game          4: View Rules")
     
-# function to buy building
+
+# function to place building
+# check if square is valid
+# returns true if placement is successful
+def place_building(board, position, building):
+    # check if position is valid: on first turn can place anywhere
+    letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"]
+    position = input("Place where? ")
+    check_column = int(position[-1])
+    check_row = position[0].upper()
+    game_turn = game_vars["turn"] + 1
+    my_squares = []
+    if check_column <= 20 and check_column != 0 and check_row in letters and game_turn == 1:
+        col_position = check_column - 1
+        lane = letters.index(check_row)
+        valid_position = True
+        my_squares.append(position)
+    elif check_column <= 20 and check_column != 0 and check_row in letters and game_turn > 1:
+        print("Test")
+        # check if square is adjacent to occupied squares
+    else:
+        valid_position = False
+        game_vars["coins"] += 1
+        
+    #now check if square is occupied
+    if valid_position == True:
+        if board[lane][col_position] == None:
+            if building == "Residential":
+                    board[lane][col_position] = ['Resi', "R"]
+            elif building == "Industry":
+                    board[lane][col_position] = ['Ind', "I"]
+            elif building == "Commercial":
+                    board[lane][col_position] = ['Comm', "C"]
+            elif building == "Park":
+                    board[lane][col_position] = ['Park', "0"]
+            elif building == "Road":
+                    board[lane][col_position] = ['Road', "*"]
+    else:
+        print("Can't place there.")
+        valid_position = False
+        game_vars["coins"] += 1
+
+    return True
+    
+# code to randomly select 2 building types for player to choose
 buildings = ['Residential', 'Industry', 'Commercial', 'Park', 'Road']
 building1 = str(random.choice(buildings))
 building2 = str(random.choice(buildings))
@@ -175,12 +222,47 @@ elif building2 == "Park":
 elif building2 == "Road":
     opt2 = road["shortform"]
 
+# function to buy building
 def buy_building(board, game_vars):
-    print("")
-    print("Choose your building type: ({}) {} or ({}) {}. Cost: 1 coin".format(opt1, building1, opt2, building2))
-    print("The unselected building will be discarded.")
-    print("")
-    building_choice = int(input("Your Choice? "))
+    buy_success = False
+    while buy_success == False:
+        print("")
+        print("Choose your building type: ({}) {} or ({}) {}. Cost: 1 coin".format(opt1, building1, opt2, building2))
+        print("The unselected building will be discarded.")
+        print("")
+        building_choice = str(input("Your Choice? "))
+        if building_choice == opt1 or opt2:
+            # check if player can buy building
+            if building_choice.upper() == residential["shortform"] and game_vars["coins"] >= 1:
+                building = "Residential"
+                buy_success = True
+            elif building_choice.upper() == industry["shortform"] and game_vars["coins"] >= 1:
+                building = "Industry"
+                buy_success = True 
+            elif building_choice.upper() == commercial["shortform"] and game_vars["coins"] >= 1:
+                building = "Commercial"
+                buy_success = True
+            elif building_choice == park["shortform"] and game_vars["coins"] >= 1:
+                building = "Park"
+                buy_success = True
+            elif building_choice == road["shortform"] and game_vars["coins"] >= 1:
+                building = "Road"
+                buy_success = True
+            else:
+                buy_success = False
+                print("Can't buy that. Please select valid option.")
+        else:
+            print("Can't buy that. Please select valid option.")
+            buy_success = False
+            
+    if buy_success == True:
+        game_vars["coins"] -= 1
+        place_building(board, position, building)
+        
+    return
+            
+        
+    
 
 
 # MAIN CODE: START NEW GAME SESSION
@@ -209,7 +291,7 @@ while option != 1 and option != 2:
                 if end_choice == 1:
                     ended = True
                     print("Returning to Main Menu...")
-                    option == 0
+                    option = 0
                 elif end_choice == 4:
                     ended = True
                     print("See you next time! Goodbye!")
@@ -224,9 +306,9 @@ while option != 1 and option != 2:
                 # function to buy and place building 
                 # time passes
                 buy_building(board, game_vars)
-                #if place_building(board, position, name) == True:
-                    #game_vars['advance_time'] = True
-                
+                if place_building(board, position, building) == True:
+                    game_vars['advance_time'] = True
+                    game_vars["turn"] += 1
             elif choice == 2: # Quit game
                 selection = 0
                 print("Are you sure you want to quit? Your game will not be saved.")
