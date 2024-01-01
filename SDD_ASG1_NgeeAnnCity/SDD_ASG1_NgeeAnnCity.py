@@ -65,7 +65,11 @@ board = [ [None, None, None, None, None, None, None,None, None, None, None, None
           [None, None, None, None, None, None, None,None, None, None, None, None, None, None,None, None, None, None, None, None],
           [None, None, None, None, None, None, None,None, None, None, None, None, None, None,None, None, None, None, None, None]]
 
+#global boolean to end game
+end_game = False
 
+#global boolean to not end turn for :don't buy or invalid inputs
+dont_end_turn = False
 
 # function to display main menu
 def display_main_menu():
@@ -94,6 +98,9 @@ def display_game_board():
         for space in board[row]:
             if space == None:
                 first_line += "     |"
+                second_line += "     |"
+            else:
+                first_line += "{:^5}|".format(space[0])
                 second_line += "     |"
                 
         print(letters[row], first_line)
@@ -152,43 +159,25 @@ def show_game_menu(game_vars):
 # function to place building
 # check if square is valid
 # returns true if placement is successful
+
 def place_building(board, position, building):
-    # check if position is valid: on first turn can place anywhere
-    letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"]
-    position = input("Place where? ")
-    check_column = int(position[-1])
-    check_row = position[0].upper()
-    game_turn = game_vars["turn"] + 1
-    my_squares = []
-    if check_column <= 20 and check_column != 0 and check_row in letters and game_turn == 1:
-        col_position = check_column - 1
-        lane = letters.index(check_row)
-        valid_position = True
-        my_squares.append(position)
-    elif check_column <= 20 and check_column != 0 and check_row in letters and game_turn > 1:
-        print("Test")
-        # check if square is adjacent to occupied squares
-    else:
-        valid_position = False
-        game_vars["coins"] += 1
-        
-    #now check if square is occupied
-    if valid_position == True:
-        if board[lane][col_position] == None:
-            if building == "Residential":
-                    board[lane][col_position] = ['Resi', "R"]
-            elif building == "Industry":
-                    board[lane][col_position] = ['Ind', "I"]
-            elif building == "Commercial":
-                    board[lane][col_position] = ['Comm', "C"]
-            elif building == "Park":
-                    board[lane][col_position] = ['Park', "0"]
-            elif building == "Road":
-                    board[lane][col_position] = ['Road', "*"]
-    else:
-        print("Can't place there.")
-        valid_position = False
-        game_vars["coins"] += 1
+    row = ord(position[0].upper()) - ord("A") 
+    column = int(position[1]) -1 
+    if position[0].capitalize() not in ("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T") or int(position[1]) > 20 or board[row][column] != None:
+        print("Invalid Position")
+        return False #unable to place unit because invalid position
+    
+    if building in buildings:  
+        if building == "Residential":
+                board[row][column] = ['Resi']
+        elif building == "Industry":
+                board[row][column] = ['Ind']
+        elif building == "Commercial":
+                board[row][column] = ['Comm']
+        elif building == "Park":
+                board[row][column] = ['Park']
+        elif building == "Road":
+                board[row][column] = ['Road']
 
     return True
     
@@ -224,46 +213,110 @@ elif building2 == "Road":
 
 # function to buy building
 def buy_building(board, game_vars):
-    buy_success = False
-    while buy_success == False:
-        print("")
-        print("Choose your building type: ({}) {} or ({}) {}. Cost: 1 coin".format(opt1, building1, opt2, building2))
-        print("The unselected building will be discarded.")
-        print("")
-        building_choice = str(input("Your Choice? "))
-        if building_choice == opt1 or opt2:
-            # check if player can buy building
-            if building_choice.upper() == residential["shortform"] and game_vars["coins"] >= 1:
-                building = "Residential"
-                buy_success = True
-            elif building_choice.upper() == industry["shortform"] and game_vars["coins"] >= 1:
-                building = "Industry"
-                buy_success = True 
-            elif building_choice.upper() == commercial["shortform"] and game_vars["coins"] >= 1:
-                building = "Commercial"
-                buy_success = True
-            elif building_choice == park["shortform"] and game_vars["coins"] >= 1:
-                building = "Park"
-                buy_success = True
-            elif building_choice == road["shortform"] and game_vars["coins"] >= 1:
-                building = "Road"
-                buy_success = True
-            else:
-                buy_success = False
-                print("Can't buy that. Please select valid option.")
-        else:
-            print("Can't buy that. Please select valid option.")
-            buy_success = False
-            
-    if buy_success == True:
-        game_vars["coins"] -= 1
-        place_building(board, position, building)
-        
-    return
-            
-        
-    
+    global dont_end_turn
 
+    print("")
+    print("Choose your building type: ({}) {} or ({}) {}. Cost: 1 coin".format(opt1, building1, opt2, building2))
+    print("The unselected building will be discarded.")
+    print("")
+    building_choice = str(input("Your Choice? "))
+    if building_choice == opt1:
+        position = input("Place where?")
+        if building_choice.upper() == residential["shortform"] and game_vars["coins"] >= 1:
+            building = "Residential"
+            if (place_building(board, position, building) == False): #check if there square is unoccupied
+                dont_end_turn = True
+            else:
+                #since place_unit function already called, no need to call again
+                game_vars["coins"] = int(game_vars["coins"]) - 1
+                dont_end_turn = False
+        elif building_choice.upper() == industry["shortform"] and game_vars["coins"] >= 1:
+            building = "Industry"
+            if (place_building(board, position, building) == False): #check if there square is unoccupied
+                dont_end_turn = True
+            else:
+                #since place_unit function already called, no need to call again
+                game_vars["coins"] = int(game_vars["coins"]) - 1
+                dont_end_turn = False
+        elif building_choice.upper() == commercial["shortform"] and game_vars["coins"] >= 1:
+            building = "Commercial"
+            if (place_building(board, position, building) == False): #check if there square is unoccupied
+                dont_end_turn = True
+            else:
+                #since place_unit function already called, no need to call again
+                game_vars["coins"] = int(game_vars["coins"]) - 1
+                dont_end_turn = False
+        elif building_choice == park["shortform"] and game_vars["coins"] >= 1:
+            building = "Park"
+            if (place_building(board, position, building) == False): #check if there square is unoccupied
+                dont_end_turn = True
+            else:
+                #since place_unit function already called, no need to call again
+                game_vars["coins"] = int(game_vars["coins"]) - 1
+                dont_end_turn = False
+        elif building_choice == road["shortform"] and game_vars["coins"] >= 1:
+                building = "Road"
+                if (place_building(board, position, building) == False): #check if there square is unoccupied
+                    dont_end_turn = True
+                else:
+                #since place_unit function already called, no need to call again
+                    game_vars["coins"] = int(game_vars["coins"]) - 1
+                    dont_end_turn = False
+        else:
+            print("You do not have enough coins to buy this building. Game over")
+            
+
+    elif building_choice == opt2:
+        position = input("Place where?")
+        if building_choice.upper() == residential["shortform"] and game_vars["coins"] >= 1:
+            building = "Residential"
+            if (place_building(board, position, building) == False): #check if there square is unoccupied
+                dont_end_turn = True
+            else:
+                #since place_unit function already called, no need to call again
+                game_vars["coins"] = int(game_vars["coins"]) - 1
+                dont_end_turn = False
+        elif building_choice.upper() == industry["shortform"] and game_vars["coins"] >= 1:
+            building = "Industry"
+            if (place_building(board, position, building) == False): #check if there square is unoccupied
+                dont_end_turn = True
+            else:
+                #since place_unit function already called, no need to call again
+                game_vars["coins"] = int(game_vars["coins"]) - 1
+                dont_end_turn = False
+        elif building_choice.upper() == commercial["shortform"] and game_vars["coins"] >= 1:
+            building = "Commercial"
+            if (place_building(board, position, building) == False): #check if there square is unoccupied
+                dont_end_turn = True
+            else:
+                #since place_unit function already called, no need to call again
+                game_vars["coins"] = int(game_vars["coins"]) - 1
+                dont_end_turn = False
+        elif building_choice == park["shortform"] and game_vars["coins"] >= 1:
+            building = "Park"
+            if (place_building(board, position, building) == False): #check if there square is unoccupied
+                dont_end_turn = True
+            else:
+                #since place_unit function already called, no need to call again
+                game_vars["coins"] = int(game_vars["coins"]) - 1
+                dont_end_turn = False
+        elif building_choice == road["shortform"] and game_vars["coins"] >= 1:
+            building = "Road"
+            if (place_building(board, position, building) == False): #check if there square is unoccupied
+                dont_end_turn = True
+            else:
+                #since place_unit function already called, no need to call again
+                game_vars["coins"] = int(game_vars["coins"]) - 1
+                dont_end_turn = False
+        else:
+            print("You do not have enough coins to buy this building. Game over")
+            
+    
+    else:
+        print("Invalid action.")
+        dont_end_turn = True
+    
+               
 
 # MAIN CODE: START NEW GAME SESSION
  
@@ -305,8 +358,8 @@ while option != 1 and option != 2:
             if choice == 1:  # Place building
                 # function to buy and place building 
                 # time passes
-                buy_building(board, game_vars)
-                if place_building(board, position, building) == True:
+                
+                if buy_building(board, game_vars) == True:
                     game_vars['advance_time'] = True
                     game_vars["turn"] += 1
             elif choice == 2: # Quit game
@@ -347,6 +400,3 @@ while option != 1 and option != 2:
         elif selection == 1:
             print("See you next time! Goodbye!")
             break
-
-
-
