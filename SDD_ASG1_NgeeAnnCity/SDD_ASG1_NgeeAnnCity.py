@@ -4,7 +4,7 @@ import random
 # game variables
 
 game_vars = {
-    "turn" : 0,             # Current turn
+    "turn" : 1,             # Current turn
     "coins" : 16,           # Coins for purchasing buildings
     "buildings" : 0,        # No of buildings placed
     "score": 0,             # Amount of points earnt by player
@@ -142,14 +142,14 @@ def display_game_rules():
 
 # initialize game 
 def initialize_game():
-    game_vars["turn"] = 0
+    game_vars["turn"] = 1
     game_vars["buildings"] = 0
     game_vars["coins"] = 16
     game_vars["score"] = 0
     
 # show in game menu while playing game
 def show_game_menu(game_vars):
-    print('Turn: {}     Score: {}'.format(game_vars["turn"]+1, game_vars["score"]))
+    print('Turn: {}     Score: {}'.format(game_vars["turn"], game_vars["score"]))
     print('Coins = {}     Buildings = {}/400'.format(game_vars["coins"],game_vars['score']))
     print("")
     print("1: Place a Building   2: Quit to menu")
@@ -161,59 +161,91 @@ def show_game_menu(game_vars):
 # returns true if placement is successful
 
 def place_building(board, position, building):
-    row = ord(position[0].upper()) - ord("A") 
-    column = int(position[1]) -1 
-    if position[0].capitalize() not in ("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T") or int(position[1]) > 20 or board[row][column] != None:
-        print("Invalid Position")
-        return False #unable to place unit because invalid position
+    global dont_end_turn
+    able_to_place = False
+
+    row = ord(position[0].upper()) - ord("A")
+    column = int(position[1:]) - 1
+
+    if building == "Residential" :
+        longerName = "Resi"
+        shorterName = "R"
+
+    elif building == "Commercial" :
+        longerName = "Comm"
+        shorterName = "C"
+            
+    elif building == "Industry" :
+        longerName = "Ind"
+        shorterName = "I"
     
-    if building in buildings:  
-        if building == "Residential":
-                board[row][column] = ['Resi', "R"]
-        elif building == "Industry":
-                board[row][column] = ['Ind', "I"]
-        elif building == "Commercial":
-                board[row][column] = ['Comm', "C"]
-        elif building == "Park":
-                board[row][column] = ['Park', "0"]
-        elif building == "Road":
-                board[row][column] = ['Road', "*"]
-        end_turn()
-    return True
+    elif building == "Park" :
+        longerName = "Park"
+        shorterName = "0"
+
+    elif building == "Road" :
+        longerName = "Road"
+        shorterName = "*"
+    
+    if game_vars["turn"] > 1:
+        able_to_place = False
+        for y in range(-1, 2):
+            for x in range(-1, 2):
+                new_row = row + y
+                new_column = column + x
+                if 0 <= new_row < 20 and 0 <= new_column < 20 and board[new_row][new_column] != None:
+                    able_to_place = True
+                    print(able_to_place)
+                    
+        if able_to_place:
+            board[row][column] = [longerName, shorterName]
+            game_vars["turn"] += 1
+        else:
+            print("Invalid Position")
+            dont_end_turn = True
+
+    else:
+        board[row][column] = [longerName, shorterName]
+        game_vars["turn"] += 1
     
 # code to randomly select 2 building types for player to choose
 buildings = ['Residential', 'Industry', 'Commercial', 'Park', 'Road']
-building1 = str(random.choice(buildings))
-building2 = str(random.choice(buildings))
+def select_buildings():
+    building1 = random.choice(buildings)
+    building2 = random.choice(buildings)
 
-if building1 == building2:  # code to (hopefully) prevent duplicate options 
-    building2 = str(random.choice(buildings)) 
-
-if building1 == "Residential":
-    opt1 = residential["shortform"]
-elif building1 == "Industry":
-    opt1 = industry["shortform"]
-elif building1 == "Commercial":
-    opt1 = commercial["shortform"]
-elif building1 == "Park":
-    opt1 = park["shortform"]
-elif building1 == "Road":
-    opt1 = road["shortform"]
-        
-if building2 == "Residential":
-    opt2 = residential["shortform"]
-elif building2 == "Industry":
-    opt2 = industry["shortform"]
-elif building2 == "Commercial":
-    opt2 = commercial["shortform"]
-elif building2 == "Park":
-    opt2 = park["shortform"]
-elif building2 == "Road":
-    opt2 = road["shortform"]
+    while building1 == building2:  # code to prevent duplicate options 
+        building2 = random.choice(buildings) 
+    
+    return building1, building2
 
 # function to buy building
 def buy_building(board, game_vars):
     global dont_end_turn
+
+    # randomly select 2 buildings for this turn
+    building1, building2 = select_buildings()
+    if building1 == "Residential":
+        opt1 = residential["shortform"]
+    elif building1 == "Industry":
+        opt1 = industry["shortform"]
+    elif building1 == "Commercial":
+        opt1 = commercial["shortform"]
+    elif building1 == "Park":
+        opt1 = park["shortform"]
+    elif building1 == "Road":
+        opt1 = road["shortform"]
+            
+    if building2 == "Residential":
+        opt2 = residential["shortform"]
+    elif building2 == "Industry":
+        opt2 = industry["shortform"]
+    elif building2 == "Commercial":
+        opt2 = commercial["shortform"]
+    elif building2 == "Park":
+        opt2 = park["shortform"]
+    elif building2 == "Road":
+        opt2 = road["shortform"]
 
     print("")
     print("Choose your building type: ({}) {} or ({}) {}. Cost: 1 coin".format(opt1, building1, opt2, building2))
@@ -226,6 +258,7 @@ def buy_building(board, game_vars):
             building = "Residential"
             if (place_building(board, position, building) == False): #check if there square is unoccupied
                 dont_end_turn = True
+                end_turn()
             else:
                 #since place_unit function already called, no need to call again
                 game_vars["coins"] = int(game_vars["coins"]) - 1
@@ -315,7 +348,11 @@ def buy_building(board, game_vars):
     else:
         print("Invalid action.")
         dont_end_turn = True
-    
+
+#display game summary when game over - displays score, how many buildings you have
+def game_summary():
+    print()
+
 # end_turn()
 # when turn ends -after buying and placing unit
 
@@ -345,8 +382,9 @@ while option != 1 and option != 2:
             game_vars['advance_time'] = False
             if game_vars["buildings"] == 400 or game_vars["coins"] == 0:
                 print("Game Over! Select an Option to Continue...")
-                print("1: Exit to Menu       2: View Summary")
-                print("3: View Highscores    4: Quit Game")
+                game_summary()
+                print("1: Exit to Menu       2: View Highscores")
+                print("3: Quit Game")
                 end_choice = int(input("Your Choice: "))
                 # add function to display options to view summary and highscore etc
                 if end_choice == 1:
