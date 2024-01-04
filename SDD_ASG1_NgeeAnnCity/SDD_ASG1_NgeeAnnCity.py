@@ -125,14 +125,14 @@ def display_game_rules():
     print("- The game ends when the player runs out of coins or fills up the board.")
     print()
     print("SCORING SYSTEM:")
-    print("The scoring system is documented below as follows:")
+    print("The scoring system is documented as follows:")
     print()
     print("Residential (R): If it is next to an industry (I), then it scores 1 point only.")
     print("                 Otherwise, it scores 1 point for each adjacent residential (R) or commercial (C),")
     print("                 and 2 points for each adjacent park (O).")
-    print("Industry (I):    Scores 1 point per industry in the city.")
+    print("Industry    (I): Scores 1 point per industry in the city.")
     print("                 Each industry generates 1 coin per residential building adjacent to it.")
-    print("Commercial (C):  Scores 1 point per commercial adjacent to it.")
+    print("Commercial  (C): Scores 1 point per commercial adjacent to it.")
     print("                 Each commercial generates 1 coin per residential adjacent to it. ")
     print("Park (O): Scores 1 point per park adjacent to it.")
     print("Road (*): Scores 1 point per connected road (*) in the same row.")
@@ -195,7 +195,7 @@ def place_building(board, position, building):
                 new_column = column + x
                 if 0 <= new_row < 20 and 0 <= new_column < 20 and board[new_row][new_column] != None:
                     able_to_place = True
-                    print(able_to_place)
+                    # print(able_to_place)
                     
         if able_to_place:
             board[row][column] = [longerName, shorterName]
@@ -351,7 +351,14 @@ def buy_building(board, game_vars):
 
 #display game summary when game over - displays score, how many buildings you have
 def game_summary():
-    print()
+    print("")
+    print("-------- GAME SUMMARY --------")
+    print("")
+    print("Final Score: {}".format(game_vars["score"]))
+    print("Buildings Placed: {}".format(game_vars["buildings"]))
+    print("No. of Turns: {}".format(game_vars["turn"]))
+    print("")
+    print("------------------------------")
 
 # end_turn()
 # when turn ends -after buying and placing unit
