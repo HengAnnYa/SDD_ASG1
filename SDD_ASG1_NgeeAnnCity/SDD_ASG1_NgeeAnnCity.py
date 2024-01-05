@@ -1,4 +1,5 @@
 
+
 import random
 
 # game variables
@@ -140,6 +141,7 @@ def display_game_rules():
     print()
     
 
+
 # initialize game 
 def initialize_game():
     game_vars["turn"] = 1
@@ -155,6 +157,51 @@ def show_game_menu(game_vars):
     print("1: Place a Building   2: Quit to menu")
     print("3: Save Game          4: View Rules")
     
+
+###############################################################
+#function to calculate score
+def calculate_score(board):
+    score = 0
+
+    for row in range(20):
+        for col in range(20):
+            if board[row][col] == ['Resi', 'R']:
+                adjacent_industry = count_adjacent_building(board, row, col, industry["shortform"])
+                adjacent_commercial = count_adjacent_building(board, row, col, commercial["shortform"])
+                adjacent_park = count_adjacent_building(board, row, col, park["shortform"])
+
+                if adjacent_industry > 0:
+                    score += 1
+                else:
+                    score += adjacent_commercial + adjacent_park * 2
+
+            elif board[row][col] == ['Ind', 'I']:
+                score += 1
+
+            elif board[row][col] == ['Comm', 'C']:
+                score += count_adjacent_building(board, row, col, commercial["shortform"])
+
+            elif board[row][col] == ['Park', '0']:
+                score += count_adjacent_building(board, row, col, park["shortform"])
+
+            elif board[row][col] == ['Road', '*']:
+                # Assuming all connected roads in the same row count as 1 point each
+                score += 1
+                
+    return score
+
+##############################################################3
+# function
+def count_adjacent_building(board, row, col, building_type):
+    count = 0
+    for dr in [-1, 0, 1]:
+        for dc in [-1, 0, 1]:
+            if (dr != 0 or dc != 0) and 0 <= row + dr < 20 and 0 <= col + dc < 20:
+                if board[row + dr][col + dc] == [building_type, None]:
+                    count += 1
+    print(count);
+    return count
+
 
 # function to place building
 # check if square is valid
@@ -186,7 +233,7 @@ def place_building(board, position, building):
     elif building == "Road" :
         longerName = "Road"
         shorterName = "*"
-    
+
     if game_vars["turn"] > 1:
         able_to_place = False
         for y in range(-1, 2):
@@ -200,7 +247,10 @@ def place_building(board, position, building):
         if able_to_place:
             board[row][column] = [longerName, shorterName]
             game_vars["turn"] += 1
+            ####################################testing
+            game_vars["score"] = calculate_score(board)  # Update score here
             game_vars["buildings"] += 1
+            #print("Current Score:", game_vars["score"])
         else:
             print("Invalid Position")
             dont_end_turn = True
@@ -209,6 +259,9 @@ def place_building(board, position, building):
         board[row][column] = [longerName, shorterName]
         game_vars["turn"] += 1
         game_vars["buildings"] += 1
+        #######################################testing
+        game_vars["score"] = calculate_score(board)  # Update score here
+        #print("Current Score:", game_vars["score"])
     
 # code to randomly select 2 building types for player to choose
 buildings = ['Residential', 'Industry', 'Commercial', 'Park', 'Road']
@@ -351,6 +404,7 @@ def buy_building(board, game_vars):
         print("Invalid action.")
         dont_end_turn = True
 
+
 #display game summary when game over - displays score, how many buildings you have
 def game_summary():
     print("")
@@ -386,7 +440,8 @@ while option != 1 and option != 2:
         ended = False
         initialize_game()
         while not ended:
-            display_game_board()        
+            display_game_board()  
+            ########################current_score = calculate_score(board)
             show_game_menu(game_vars)
             game_vars['advance_time'] = False
             if game_vars["buildings"] == 400 or game_vars["coins"] == 0:
@@ -435,6 +490,7 @@ while option != 1 and option != 2:
                 display_game_rules()
                 print("Returning to game...")
                 continue
+        
 
     elif option == 2:
     # method for load save game
@@ -455,6 +511,11 @@ while option != 1 and option != 2:
         elif selection == 1:
             print("See you next time! Goodbye!")
             break
+
+
+
+
+
 
 
 
