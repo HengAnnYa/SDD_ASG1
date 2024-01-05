@@ -150,7 +150,7 @@ def initialize_game():
 # show in game menu while playing game
 def show_game_menu(game_vars):
     print('Turn: {}     Score: {}'.format(game_vars["turn"], game_vars["score"]))
-    print('Coins = {}     Buildings = {}/400'.format(game_vars["coins"],game_vars['score']))
+    print('Coins = {}     Buildings = {}/400'.format(game_vars["coins"],game_vars['buildings']))
     print("")
     print("1: Place a Building   2: Quit to menu")
     print("3: Save Game          4: View Rules")
@@ -200,6 +200,7 @@ def place_building(board, position, building):
         if able_to_place:
             board[row][column] = [longerName, shorterName]
             game_vars["turn"] += 1
+            game_vars["buildings"] += 1
         else:
             print("Invalid Position")
             dont_end_turn = True
@@ -207,6 +208,7 @@ def place_building(board, position, building):
     else:
         board[row][column] = [longerName, shorterName]
         game_vars["turn"] += 1
+        game_vars["buildings"] += 1
     
 # code to randomly select 2 building types for player to choose
 buildings = ['Residential', 'Industry', 'Commercial', 'Park', 'Road']
