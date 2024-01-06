@@ -1,5 +1,4 @@
 
-
 import random
 
 # game variables
@@ -416,6 +415,26 @@ def game_summary():
     print("")
     print("------------------------------")
 
+# save game 
+def save_game(game_vars):
+    data = open("save.txt", "w")
+    data.write(str(board) + "\n" + str(game_vars))
+    data.close()
+    print("Game saved!")
+
+#load saved game
+def load_game(game_vars):
+    data = open("save.txt", "r")
+    line_count = 1
+    for i in data:
+        i = i.strip("\n")
+        if line_count == 1:
+            board = eval(i)
+            line_count += 1
+        elif line_count > 1:
+            game_vars = eval(i)
+    return game_vars, board
+
 # end_turn()
 # when turn ends -after buying and placing unit
 
@@ -427,21 +446,26 @@ def end_turn():
         game_vars["turn"] += 1              
 
 # MAIN CODE: START NEW GAME SESSION
- 
-option = 0
 
-while option != 1 and option != 2:
-    display_main_menu()
-    option = int(input('Your choice? '))
-    print("---------------------------------------")
-    print("")
+option = 0
+gamecontinue = False
+
+while True:
+    if (not(gamecontinue)):
+        display_main_menu()
+        option = int(input('Your choice? '))
+        print("---------------------------------------")
+        print("")
+    elif gamecontinue:
+        option = 1
     if option == 1:
         # method for initialise new game
         ended = False
-        initialize_game()
+        if (not(gamecontinue)):
+            initialize_game()
         while not ended:
-            display_game_board()  
-            ########################current_score = calculate_score(board)
+            display_game_board()
+            ########################current_score = calculate_score(board)        
             show_game_menu(game_vars)
             game_vars['advance_time'] = False
             if game_vars["buildings"] == 400 or game_vars["coins"] == 0:
@@ -455,7 +479,10 @@ while option != 1 and option != 2:
                     ended = True
                     print("Returning to Main Menu...")
                     option = 0
-                elif end_choice == 4:
+                elif end_choice == 2:
+                    print("Show Highscore")
+                    ###not implemented yet
+                elif end_choice == 3:
                     ended = True
                     print("See you next time! Goodbye!")
                     break
@@ -484,17 +511,19 @@ while option != 1 and option != 2:
                     continue
                 
             elif choice == 3: # function to save game files
-                print("Placeholder")
+                save_game(game_vars)
+                break
                 
             elif choice == 4: # Display game rules
                 display_game_rules()
                 print("Returning to game...")
                 continue
-        
 
     elif option == 2:
     # method for load save game
-        print("This is a placeholder so theres no error")
+        game_vars, board = load_game(game_vars)
+        gamecontinue = True
+        continue
     elif option == 3:
     # method for view highscore
         print("This is a placeholder so theres no error")
@@ -511,11 +540,3 @@ while option != 1 and option != 2:
         elif selection == 1:
             print("See you next time! Goodbye!")
             break
-
-
-
-
-
-
-
-
