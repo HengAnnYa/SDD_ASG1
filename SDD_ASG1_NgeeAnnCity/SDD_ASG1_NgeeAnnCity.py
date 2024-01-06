@@ -1,5 +1,5 @@
 
-import random
+import random, json
 
 # game variables
 
@@ -40,6 +40,15 @@ road = {
     "name" : "Road",
     "price" : 1
     }
+
+scores = {
+    1: {"name": "Annya", "score": 10},
+    2: {"name": "Denise", "score": 10},
+    3: {"name": "Harishma", "score": 10},
+    4: {"name": "Eudora", "score": 10}
+    }
+with open('scores.json', 'w') as json_file:
+        json.dump(scores, json_file)
 
 position = 0
 building = 0
@@ -140,9 +149,41 @@ def display_game_rules():
     print()
     
 
+#function to display_high_scores
+def display_high_scores():
+    ##scores = {i: f"Name{i}" for i in range(1, 11)}
+    ##with open('scores.json', 'w') as json_file:
+    ##    json.dump(scores, json_file)
+    ##with open('scores.json', 'r') as json_file:
+    ##        scores = json.load(json_file)
+    ##        print("High Scores: ")
+    ##        print(f"{'Rank':<2}  Name\tScore")
+    ##        scores = {int(key): value for key, value in scores.items()}
+    ##        sorted_scores = sorted(scores.keys(), reverse=True)
+    ##        for rank, (key, value) in enumerate(scores.items(),start=1):
+    ##            if value.startswith("Name"):
+    ##                print(f"{rank:<2})   Empty\t0")
+    ##            else:
+    ##                for rank, key in enumerate(sorted_scores, start=1):
+    ##                    print(f"{rank:<2})   {scores[key]}\t{key}")
+    print("High Scores:")
+    print("    Name      Score")
+    print("1.  Annya     10")
+    print("2.  Denise    10")
+    print("3.  Harishma  10")
+    print("4.  Eudora    10")
+    print("5.  -----     --")
+    print("6.  -----     --")
+    print("7.  -----     --")
+    print("8.  -----     --")
+    print("9.  -----     --")
+    print("10. -----     --")
+
+
 
 # initialize game 
 def initialize_game():
+    game_vars["name"] = ""
     game_vars["turn"] = 1
     game_vars["buildings"] = 0
     game_vars["coins"] = 16
@@ -165,23 +206,26 @@ def calculate_score(board):
     for row in range(20):
         for col in range(20):
             if board[row][col] == ['Resi', 'R']:
-                adjacent_industry = count_adjacent_building(board, row, col, industry["shortform"])
-                adjacent_commercial = count_adjacent_building(board, row, col, commercial["shortform"])
-                adjacent_park = count_adjacent_building(board, row, col, park["shortform"])
+                adjacent_industry = count_adjacent_building(board, row, col, 'I')
+                adjacent_residential = count_adjacent_building(board, row, col, 'R')
+                adjacent_commercial = count_adjacent_building(board, row, col, 'C')
+                adjacent_park = count_adjacent_building(board, row, col, '0')
 
-                if adjacent_industry > 0:
+                if adjacent_industry > 0 or adjacent_commercial > 0:
                     score += 1
+                elif adjacent_park > 0:
+                    score += 2
                 else:
-                    score += adjacent_commercial + adjacent_park * 2
+                    score += adjacent_residential
 
             elif board[row][col] == ['Ind', 'I']:
                 score += 1
 
             elif board[row][col] == ['Comm', 'C']:
-                score += count_adjacent_building(board, row, col, commercial["shortform"])
+                score += count_adjacent_building(board, row, col, 'C')
 
             elif board[row][col] == ['Park', '0']:
-                score += count_adjacent_building(board, row, col, park["shortform"])
+                score += count_adjacent_building(board, row, col, '0')
 
             elif board[row][col] == ['Road', '*']:
                 # Assuming all connected roads in the same row count as 1 point each
@@ -198,7 +242,7 @@ def count_adjacent_building(board, row, col, building_type):
             if (dr != 0 or dc != 0) and 0 <= row + dr < 20 and 0 <= col + dc < 20:
                 if board[row + dr][col + dc] == [building_type, None]:
                     count += 1
-    print(count);
+    #print(count);
     return count
 
 
@@ -456,6 +500,9 @@ while True:
         option = int(input('Your choice? '))
         print("---------------------------------------")
         print("")
+        scores = {i: f"Name{i}" for i in range(1, 11)}
+        with open('scores.json', 'w') as json_file:
+            json.dump(scores, json_file)
     elif gamecontinue:
         option = 1
     if option == 1:
@@ -469,8 +516,19 @@ while True:
             show_game_menu(game_vars)
             game_vars['advance_time'] = False
             if game_vars["buildings"] == 400 or game_vars["coins"] == 0:
-                print("Game Over! Select an Option to Continue...")
+                print("Game Over!")
                 game_summary()
+                sorted_scores = sorted(scores.keys(), reverse=True)
+                if game_vars["score"] > sorted_scores[-1]:
+                    print("Congratulations, you're in the top 10!")
+                    name = input("What's your name: ")
+                    sorted_scores.append(game_vars["score"])
+                    for key, value in list(scores.items()):
+                        if value == sorted_scores[-1]:
+                            del scores[key]                    
+                with open('scores.json', 'w') as json_file:
+                    json.dump(scores, json_file)
+                print("Select an Option to Continue...")
                 print("1: Exit to Menu       2: View Highscores")
                 print("3: Quit Game")
                 end_choice = int(input("Your Choice: "))
@@ -480,8 +538,22 @@ while True:
                     print("Returning to Main Menu...")
                     option = 0
                 elif end_choice == 2:
-                    print("Show Highscore")
-                    ###not implemented yet
+                    with open('scores.json', 'r') as json_file:
+                        scores = json.load(json_file)
+                        #print("High Scores: ")
+                        #print(f"{'Rank':<2}  Name\tScore")
+                        display_high_scores()
+                        scores = {int(key): value for key, value in scores.items()}
+                        sorted_scores = sorted(scores.keys(), reverse=True)
+                        #for rank, (key, value) in enumerate(scores.items(),start=1):
+                        #    if value.startswith("Name"):
+                        #        print(f"{rank:<2})   Empty\t0")
+                        #    else:
+                        #        for rank, key in enumerate(sorted_scores, start=1):
+                        #            print(f"{rank:<2})   {scores[key]}\t{key}")
+                        #            print("Returning to main menu...")
+                    print("Returning to Main Menu...")
+                    option = 0
                 elif end_choice == 3:
                     ended = True
                     print("See you next time! Goodbye!")
@@ -526,7 +598,21 @@ while True:
         continue
     elif option == 3:
     # method for view highscore
-        print("This is a placeholder so theres no error")
+        with open('scores.json', 'r') as json_file:
+            scores = json.load(json_file)
+        #print("High Scores: ")
+        #print(f"{'Rank':<2}  Name\tScore")
+        display_high_scores()
+        scores = {int(key): value for key, value in scores.items()}
+        sorted_scores = sorted(scores.keys(), reverse=True)
+        #for rank, (key, value) in enumerate(scores.items(),start=1):
+        #    if value.startswith("Name"):
+        #        print(f"{rank:<2})   Empty\t0")
+        #    else:
+        #        for rank, key in enumerate(sorted_scores, start=1):
+        #            print(f"{rank:<2})   {scores[key]}\t{key}")
+        print("Returning to main menu...")
+
     elif option == 5:
         display_game_rules()
         print("Returning to main menu...")
